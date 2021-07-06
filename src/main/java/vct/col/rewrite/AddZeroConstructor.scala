@@ -3,8 +3,9 @@ package vct.col.rewrite
 import hre.ast.BranchOrigin
 import vct.col.ast.`type`.PrimitiveSort
 import vct.col.ast.expr.StandardOperator
-import vct.col.ast.stmt.decl.{ASTClass, DeclarationStatement, Method, ProgramUnit}
+import vct.col.ast.stmt.decl.{ASTClass, ASTSpecial, DeclarationStatement, Method, ProgramUnit}
 import vct.col.ast.util.{AbstractRewriter, ContractBuilder}
+import vct.col.ast.stmt.decl.ASTSpecial
 
 import scala.jdk.CollectionConverters._
 
@@ -29,6 +30,9 @@ case class AddZeroConstructor(override val source: ProgramUnit) extends Abstract
       body.addStatement(create assignment(fieldNode, init))
       cb.ensures(create.expression(StandardOperator.PointsTo, fieldNode, create.fullPermission(), init))
     }
+
+    body.append(create.special(ASTSpecial.Kind.Inhale, create.invokation(create.diz, null, "idleToken")))
+    cb.ensures(create.invokation(create.diz, null, "idleToken"));
 
     val res = create method_kind(
       Method.Kind.Constructor,
