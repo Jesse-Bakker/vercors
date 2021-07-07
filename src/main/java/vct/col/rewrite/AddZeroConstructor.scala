@@ -7,6 +7,7 @@ import vct.col.ast.stmt.decl.{ASTClass, ASTSpecial, DeclarationStatement, Method
 import vct.col.ast.util.{AbstractRewriter, ContractBuilder}
 import vct.col.ast.stmt.decl.ASTSpecial
 
+import scala.collection.convert.ImplicitConversions.`collection asJava`
 import scala.jdk.CollectionConverters._
 
 object AddZeroConstructor {
@@ -24,15 +25,17 @@ case class AddZeroConstructor(override val source: ProgramUnit) extends Abstract
     val cb = new ContractBuilder
     val body = create.block()
 
-    for(field <- cls.dynamicFields.asScala) {
+    for (field <- cls.dynamicFields.asScala) {
       val init = field.`type`.zero
-      val fieldNode = create.dereference (create.diz(), field.name)
+      val fieldNode = create.dereference(create.diz(), field.name)
       body.addStatement(create assignment(fieldNode, init))
       cb.ensures(create.expression(StandardOperator.PointsTo, fieldNode, create.fullPermission(), init))
     }
 
-    body.append(create.special(ASTSpecial.Kind.Inhale, create.invokation(create.diz, null, "idleToken")))
-    cb.ensures(create.invokation(create.diz, null, "idleToken"));
+    if(cls.methods().asScala.map(_.name).contains("run")) {
+      body.append(create.special(ASTSpecial.Kind.Inhale, create.invokation(create.diz, null, "idleToken")))
+      cb.ensures(create.invokation(create.diz, null, "idleToken"));
+    }
 
     val res = create method_kind(
       Method.Kind.Constructor,
