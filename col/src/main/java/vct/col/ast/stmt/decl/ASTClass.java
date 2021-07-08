@@ -553,5 +553,14 @@ public class ASTClass extends ASTDeclaration implements ASTSequence<ASTClass> {
       return null;
     }
   }
+
+  public Boolean is_runnable() {
+    for(Method m:dynamicMethods()){
+      if (m.getName().equals("run")) return true;
+    }
+    return false;
+  }
+
 }
+
 

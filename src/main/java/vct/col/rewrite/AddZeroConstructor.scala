@@ -32,7 +32,7 @@ case class AddZeroConstructor(override val source: ProgramUnit) extends Abstract
       cb.ensures(create.expression(StandardOperator.PointsTo, fieldNode, create.fullPermission(), init))
     }
 
-    if(cls.methods().asScala.map(_.name).contains("run")) {
+    if(cls.is_runnable()) {
       body.append(create.special(ASTSpecial.Kind.Inhale, create.invokation(create.diz, null, "idleToken")))
       cb.ensures(create.invokation(create.diz, null, "idleToken"));
     }
