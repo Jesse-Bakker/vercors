@@ -24,12 +24,12 @@ import vct.col.util.FeatureScanner;
  * @author Stefan Blom
  *
  */
-public class PVLEncoder extends AbstractRewriter {
+public class SynchronisersEncoder extends AbstractRewriter {
 
   public static final String INV="lock_invariant";
   public static final String HELD="lock_held";
 
-  public PVLEncoder(ProgramUnit source) {
+  public SynchronisersEncoder(ProgramUnit source) {
     super(source);
   }
   

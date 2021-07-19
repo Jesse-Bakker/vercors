@@ -14,7 +14,7 @@ import vct.col.ast.generic.{ASTNode, BeforeAfterAnnotations}
 import vct.col.ast.langspecific.c.{OMPFor, OMPForSimd, OMPParallel, OMPParallelFor, OMPSection, OMPSections}
 import vct.col.ast.stmt.decl.ASTClass.ClassKind
 import vct.col.ast.stmt.terminal.{AssignmentStatement, ReturnStatement}
-import vct.col.rewrite.{AddTypeADT, IntroExcVar, PVLEncoder}
+import vct.col.rewrite.{AddTypeADT, IntroExcVar, SynchronisersEncoder}
 import vct.parsers.rewrite.InferADTTypes
 
 import scala.jdk.CollectionConverters._
@@ -143,7 +143,7 @@ class RainbowVisitor(source: ProgramUnit) extends RecursiveVisitor(source, true)
     if(m.name == "csl_invariant")
       addFeature(JavaAtomic, m)
      */
-    if(m.name == PVLEncoder.INV && getParentNode != null && !getParentNode.asInstanceOf[ASTClass].methods().asScala.exists(_.name == PVLEncoder.HELD))
+    if(m.name == SynchronisersEncoder.INV && getParentNode != null && !getParentNode.asInstanceOf[ASTClass].methods().asScala.exists(_.name == SynchronisersEncoder.HELD))
       addFeature(PVLSugar, m)
     if(m.name == "run" && getParentNode != null && !getParentNode.asInstanceOf[ASTClass].methods().asScala.exists(_.name == "forkOperator"))
       addFeature(PVLSugar, m)

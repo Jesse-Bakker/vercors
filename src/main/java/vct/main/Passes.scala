@@ -394,7 +394,7 @@ object Passes {
       removes=Set(features.KernelClass)),
     SimplePass("encodeForkLockWait",
       "Encode PVL builtins for verification.",
-      new PVLEncoder(_).rewriteAll,
+      new SynchronisersEncoder(_).rewriteAll,
       permits=Feature.DEFAULT_PERMIT ++ Feature.OPTION_GATES ++ Set(
         features.NotJavaEncoded,
         features.PVLSugar,
