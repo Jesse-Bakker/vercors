@@ -34,5 +34,6 @@ public enum PrimitiveSort {
 	CVarArgs,
 	Option,
 	Map,
-	Tuple
+	Tuple,
+	Condition
 }

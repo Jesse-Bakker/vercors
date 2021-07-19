@@ -69,6 +69,9 @@ WAIT: 'wait';
 NOTIFY: 'notify';
 FORK: 'fork';
 JOIN: 'join';
+AWAIT: 'await';
+SIGNAL: 'signal';
+SIGALL: 'signalAll';
 
 THIS: 'this';
 NULL: 'null';
@@ -77,6 +80,7 @@ FALSE: 'false';
 CURRENT_THREAD: 'current_thread';
 CURRENT_THREAD_ESC: '\\current_thread';
 OWNER: '\\owner';
+NEW_CONDITION: 'newCondition';
 
 GLOBAL: 'global';
 LOCAL: 'local';
@@ -95,6 +99,7 @@ VOID: 'void';
 INT: 'int';
 STRING: 'string';
 OPTION: 'option';
+CONDITION: 'condition';
 
 NUMBER : ('0'..'9')+;
 

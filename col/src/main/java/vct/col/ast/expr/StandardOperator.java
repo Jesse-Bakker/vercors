@@ -258,6 +258,10 @@ public enum StandardOperator {
    */
   Held(1),
   /**
+   * Build new condition variable from lock (or object intrinsic lock).
+   */
+  NewCondition(1),
+  /**
    * The C indirection operator (*).
    */
   Indirection(1),

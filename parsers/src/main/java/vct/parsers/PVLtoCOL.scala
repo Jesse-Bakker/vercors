@@ -391,6 +391,7 @@ case class PVLtoCOL(fileName: String, tokens: CommonTokenStream, parser: PVLPars
         case "tail" => create expression(Tail, args:_*)
         case "held" => create expression(Held, args:_*)
         case "Some" => create expression(OptionSome, args:_*)
+        case "newCondition" => create expression(NewCondition, args:_*)
       }
     case NonTargetUnit11(_owner, "(", a, ",", b, ",", c, ")") =>
       create expression(IterationOwner, expr(a), expr(b), expr(c))
@@ -526,6 +527,7 @@ case class PVLtoCOL(fileName: String, tokens: CommonTokenStream, parser: PVLPars
         case "frac" => PrimitiveSort.Fraction
         case "resource" => PrimitiveSort.Resource
         case "void" => PrimitiveSort.Void
+        case "condition" => PrimitiveSort.Condition
       })
     case NonArrayType4(ClassType0(name, maybeTypeArgs)) =>
       create class_type(convertID(name), (maybeTypeArgs match {
@@ -552,9 +554,12 @@ case class PVLtoCOL(fileName: String, tokens: CommonTokenStream, parser: PVLPars
     case Statement2("unlock", exp, _) => create special(ASTSpecial.Kind.Unlock, expr(exp))
     case Statement3("wait", exp, _) => create special(ASTSpecial.Kind.Wait, expr(exp))
     case Statement4("notify", exp, _) => create special(ASTSpecial.Kind.Notify, expr(exp))
-    case Statement5("fork", exp, _) => create special(ASTSpecial.Kind.Fork, expr(exp))
-    case Statement6("join", exp, _) => create special(ASTSpecial.Kind.Join, expr(exp))
-    case Statement7("action", tup, blockNode) =>
+    case Statement5("await", exp, _) => create special(ASTSpecial.Kind.Await, expr(exp))
+    case Statement6("signal", exp, _) => create special(ASTSpecial.Kind.Signal, expr(exp))
+    case Statement7("signalAll", exp, _) => create special(ASTSpecial.Kind.SignalAll, expr(exp))
+    case Statement8("fork", exp, _) => create special(ASTSpecial.Kind.Fork, expr(exp))
+    case Statement9("join", exp, _) => create special(ASTSpecial.Kind.Join, expr(exp))
+    case Statement10("action", tup, blockNode) =>
       val args = convertExpList(tup)
       val argsOK = args.size >= 4 && args.size % 2 == 0
       if (!argsOK) {
@@ -566,11 +571,11 @@ case class PVLtoCOL(fileName: String, tokens: CommonTokenStream, parser: PVLPars
         }).toMap
       val block = convertBlock(blockNode)
       create action_block(args(0), args(1), args(2), args(3), nameMap.asJava, block)
-    case Statement8(valStat) => convertValStat(valStat)
-    case Statement9("if", "(", cond, ")", thenStat, maybeElseStat) =>
+    case Statement11(valStat) => convertValStat(valStat)
+    case Statement12("if", "(", cond, ")", thenStat, maybeElseStat) =>
       create ifthenelse(expr(cond), flattenIfSingleStatement(convertStat(thenStat)), maybeElseStat.map(convertStat).map(flattenIfSingleStatement).orNull)
     case ElseBlock0("else", stat) => flattenIfSingleStatement(convertStat(stat))
-    case Statement10("barrier", "(", name, maybeTags, ")", bodyNode) =>
+    case Statement13("barrier", "(", name, maybeTags, ")", bodyNode) =>
       val tags = maybeTags match {
         case Some(BarrierTags0(_, tags)) => convertIDList(tags)
         case None => Seq()
@@ -583,19 +588,19 @@ case class PVLtoCOL(fileName: String, tokens: CommonTokenStream, parser: PVLPars
       }
       val tagsJavaList = new JavaArrayList[String](tags.asJava)
       create barrier(convertID(name), contract, tagsJavaList, maybeBody.orNull)
-    case Statement11(contract, "par", parUnitList) =>
+    case Statement14(contract, "par", parUnitList) =>
       val parUnits = convertParUnitList(parUnitList)
       val javaParUnits = new JavaArrayList[ParallelBlock](parUnits.asJava)
       create region(convertContract(contract), javaParUnits)
-    case Statement12("vec", "(", iter, ")", block) =>
+    case Statement15("vec", "(", iter, ")", block) =>
       create vector_block(convertParIter(iter), convertBlock(block))
-    case Statement13("invariant", label, "(", resource, ")", block) =>
+    case Statement16("invariant", label, "(", resource, ")", block) =>
       create invariant_block(convertID(label), expr(resource), convertBlock(block))
-    case Statement14("atomic", "(", invariants, ")", block) =>
+    case Statement17("atomic", "(", invariants, ")", block) =>
       create parallel_atomic(convertBlock(block), convertIDList(invariants):_*)
-    case Statement15(invariants, "while", "(", cond, ")", body) =>
+    case Statement18(invariants, "while", "(", cond, ")", body) =>
       create while_loop(expr(cond), flattenIfSingleStatement(convertStat(body)), convertContract(invariants))
-    case Statement16(invariants, "for", "(", maybeInit, ";", maybeCond, ";", maybeUpdate, ")", body) =>
+    case Statement19(invariants, "for", "(", maybeInit, ";", maybeCond, ";", maybeUpdate, ")", body) =>
       create for_loop(
         maybeInit.map(convertStatList).map(create block(_:_*)).orNull,
         maybeCond.map(expr).getOrElse(create constant true),
@@ -603,14 +608,14 @@ case class PVLtoCOL(fileName: String, tokens: CommonTokenStream, parser: PVLPars
         flattenIfSingleStatement(convertStat(body)),
         convertContract(invariants)
       )
-    case Statement17(block) => convertBlock(block)
-    case Statement18("{*", exp, "*}") =>
+    case Statement20(block) => convertBlock(block)
+    case Statement21("{*", exp, "*}") =>
       create special(ASTSpecial.Kind.HoarePredicate, expr(exp))
-    case Statement19("goto", label, _) =>
+    case Statement22("goto", label, _) =>
       create special(ASTSpecial.Kind.Goto, convertIDName(label))
-    case Statement20("label", label, _) =>
+    case Statement23("label", label, _) =>
       create special(ASTSpecial.Kind.Label, convertIDName(label))
-    case Statement21(stat, _) => flattenIfSingleStatement(convertStat(stat))
+    case Statement24(stat, _) => flattenIfSingleStatement(convertStat(stat))
     case AllowedForStatement0(tNode, decls) =>
       val t = convertType(tNode)
       val result = new VariableDeclaration(t)

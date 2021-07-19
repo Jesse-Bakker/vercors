@@ -50,6 +50,7 @@ abstract class Type(val args:List[ASTNode]) extends ASTNode {
   def isIntegerType = false
   def isNumeric = false
   def isResource = false
+  def isCondition = false
 
   def zero : ASTNode = {
     Abort(s"zero is unimplemented for ${getClass()}")

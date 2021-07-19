@@ -184,7 +184,7 @@ targetUnit
  ;
 
 builtinMethod
- : ('Value' | 'HPerm' | 'Perm' | 'PointsTo' | 'Hist' | '\\old' | '?' | 'idle' | 'running' | 'head' | 'tail' | 'held' | 'Some')
+ : ('Value' | 'HPerm' | 'Perm' | 'PointsTo' | 'Hist' | '\\old' | '?' | 'idle' | 'running' | 'head' | 'tail' | 'held' | 'Some' | 'newCondition')
  ;
 
 values : '{' exprList? '}';
@@ -210,6 +210,9 @@ statement
  | 'unlock' expr ';'
  | 'wait' expr ';'
  | 'notify' expr ';'
+ | 'await' expr ';'
+ | 'signal' expr ';'
+ | 'signalAll' expr ';'
  | 'fork' expr ';'
  | 'join' expr ';'
  | 'action' tuple block
@@ -277,7 +280,7 @@ nonArrayType
  : container '<' type '>'
  | 'option' '<' type '>'
  | ('map' | 'tuple') '<' type ',' type '>'
- | ('string' | 'process' | 'int' | 'boolean' | 'zfrac' | 'frac' | 'resource' | 'void')
+ | ('string' | 'process' | 'int' | 'boolean' | 'zfrac' | 'frac' | 'resource' | 'void' | 'condition')
  | classType
  ;
 

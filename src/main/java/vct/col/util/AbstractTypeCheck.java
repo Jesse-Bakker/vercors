@@ -19,6 +19,7 @@ import vct.col.ast.stmt.terminal.AssignmentStatement;
 import vct.col.ast.stmt.terminal.ReturnStatement;
 import vct.col.ast.type.*;
 import vct.col.ast.util.*;
+import vct.col.features.This;
 import vct.col.rewrite.AddZeroConstructor;
 import vct.java.JavaASTClassLoader;
 import vct.logging.PassReport;
@@ -1304,6 +1305,11 @@ public class AbstractTypeCheck extends RecursiveVisitor<Type> {
         e.setType((Type) t);
         break;
       }
+      case NewCondition: {
+        if (!(tt[0] instanceof ClassType)) Fail("argument to newCondition should be an Object");
+        e.setType(new PrimitiveType(PrimitiveSort.Condition));
+        break;
+      }
       case Drop:
       case Take: {
         SequenceUtils.SequenceInfo info = SequenceUtils.getTypeInfoOrFail(tt[0], "Expected this expression to be of a sequence type, but got %s.");
@@ -1371,18 +1377,17 @@ public class AbstractTypeCheck extends RecursiveVisitor<Type> {
         }
         e.setType(new PrimitiveType(PrimitiveSort.Boolean));
       }
-    case Empty: {
-      Type t = e.arg(0).getType();
-      if (!(t.isPrimitive(PrimitiveSort.Sequence) || t.isPrimitive(PrimitiveSort.Bag) || t.isPrimitive(PrimitiveSort.Set) || t.isPrimitive(PrimitiveSort.Map))) {
-        Fail("argument of empty not a sequence");
+      case Empty: {
+        Type t = e.arg(0).getType();
+        if (!(t.isPrimitive(PrimitiveSort.Sequence) || t.isPrimitive(PrimitiveSort.Bag) || t.isPrimitive(PrimitiveSort.Set) || t.isPrimitive(PrimitiveSort.Map))) {
+          Fail("argument of empty not a sequence");
+        }
+        e.setType(new PrimitiveType(PrimitiveSort.Boolean));
+        break;
       }
-      e.setType(new PrimitiveType(PrimitiveSort.Boolean));
-      break;
-    }
-    case Subscript:
-    {
-      if (!(tt[0] instanceof PrimitiveType)) Fail("base must be array or sequence type.");
-      PrimitiveType t=(PrimitiveType)tt[0];
+      case Subscript: {
+        if (!(tt[0] instanceof PrimitiveType)) Fail("base must be array or sequence type.");
+        PrimitiveType t=(PrimitiveType)tt[0];
         if (t.isPrimitive(PrimitiveSort.Option)) {
           if (!(t.firstarg() instanceof PrimitiveType))
             Fail("base must be map, array or sequence type.");
@@ -1438,8 +1443,8 @@ public class AbstractTypeCheck extends RecursiveVisitor<Type> {
         e.setType(tt[0]);
         break;
       }
-    case Size:
-    {
+      case Size:
+      {
         Type t = e.arg(0).getType();
         Objects.requireNonNull(t, String.format("type of argument is unknown at %s", e.getOrigin()));
         if (!(t.isPrimitive(PrimitiveSort.Sequence) || t.isPrimitive(PrimitiveSort.Bag) || t.isPrimitive(PrimitiveSort.Set) || t.isPrimitive(PrimitiveSort.Map))) {
